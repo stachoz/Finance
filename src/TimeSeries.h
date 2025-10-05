@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <chrono>
+#include <iostream>
+#include <ranges>
 
 struct DOHLCV {
     std::chrono::year_month_day date;
@@ -13,33 +15,36 @@ struct DOHLCV {
 
 class TimeSeries {
 public:
-    void push_back(const DOHLCV& point) {
-        values.push_back(point);
-    }
+    TimeSeries(const std::vector<std::vector<std::string>>& data);
 
-    size_t size() const {
-        return values.size();
-    }
+    void push_back(const DOHLCV& point);
 
-    auto begin() const {
-        return values.begin();
-    }
+    size_t size() const;
 
-    auto end() const {
-        return values.end();
-    }
+    auto begin() const;
 
-    std::vector<double> closes() const {
+    auto end() const;
+
+    std::vector<double> closes() const;
+
+    std::vector<DOHLCV> slice(std::chrono::year_month_day start_date, std::chrono::days duration) const;
+
+    std::vector<DOHLCV> slice(std::chrono::year_month_day start_date, std::chrono::year_month_day end_date) const;
+
+    template <typename T>
+    static std::vector<double> values_of(T DOHLCV::*member, const std::vector<DOHLCV>& data) {
         std::vector<double> result;
-        result.reserve(values.size());
 
-        for(const auto& v : values) {
-            result.push_back(v.close);
+        for(const auto& item : data) {
+            result.push_back(item.*member);
         }
 
         return result;
     }
 
 private:
+    std::vector<DOHLCV> slice_impl(std::chrono::sys_days start_date,
+                              std::chrono::sys_days end_date) const;
+
     std::vector<DOHLCV> values {};
 };
