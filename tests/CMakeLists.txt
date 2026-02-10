@@ -10,10 +10,11 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(tests
         StatisticsTests.cpp
+        MAStrategyTest.cpp
 )
 
 target_link_libraries(tests PRIVATE
-        Finance_lib
+        ${PROJECT_NAME}_lib
         GTest::gtest_main
 )
 

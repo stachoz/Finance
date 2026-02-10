@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.29)
-project(Finance)
+project(TradeSim)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,8 +17,8 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
         ${PROJECT_SOURCE_DIR}/utils
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp
-        src/Statisitcs.h)
+add_executable(${PROJECT_NAME} src/main.cpp)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
 
 enable_testing()
