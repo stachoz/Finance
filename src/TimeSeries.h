@@ -1,11 +1,15 @@
 #pragma once
+
+#include <algorithm>
 #include <vector>
 #include <chrono>
 #include <iostream>
 #include <ranges>
 
+using namespace std::chrono;
+
 struct DOHLCV {
-    std::chrono::year_month_day date;
+    year_month_day date;
     double open;
     double high;
     double low;
@@ -15,36 +19,31 @@ struct DOHLCV {
 
 class TimeSeries {
 public:
-    TimeSeries(const std::vector<std::vector<std::string>>& data);
+    explicit TimeSeries(const std::vector<std::vector<std::string>>& data);
+
+    TimeSeries() = default;
 
     void push_back(const DOHLCV& point);
 
     size_t size() const;
 
-    auto begin() const;
-
-    auto end() const;
-
-    std::vector<double> closes() const;
-
-    std::vector<DOHLCV> slice(std::chrono::year_month_day start_date, std::chrono::days duration) const;
-
-    std::vector<DOHLCV> slice(std::chrono::year_month_day start_date, std::chrono::year_month_day end_date) const;
-
-    template <typename T>
-    static std::vector<double> values_of(T DOHLCV::*member, const std::vector<DOHLCV>& data) {
-        std::vector<double> result;
-
-        for(const auto& item : data) {
-            result.push_back(item.*member);
-        }
-
-        return result;
+    auto begin() const {
+        return values.begin();
     }
 
-private:
-    std::vector<DOHLCV> slice_impl(std::chrono::sys_days start_date,
-                              std::chrono::sys_days end_date) const;
+    auto end() const {
+        return values.end();
+    }
 
+    std::span<const DOHLCV> slice(year_month_day start_date, std::optional<year_month_day> end_date = std::nullopt) const;
+
+
+private:
     std::vector<DOHLCV> values {};
+
+    /// Note: potential performance issues due to year_month_day comparisons
+    /// @param start_date
+    /// @param end_date
+    /// @return
+    std::span<const DOHLCV> slice_impl(year_month_day start_date, year_month_day end_date) const;
 };
