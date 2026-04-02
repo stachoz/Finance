@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/strategy/MAStrategy.h"
+#include "TimeSeries.h"
+#include "strategy/MAStrategy.h"
+
 
 class MAStrategyTest : public ::testing::Test {
 protected:
@@ -12,10 +14,10 @@ protected:
 };
 
 TEST_F(MAStrategyTest, ReturnsNoneDuringWarmup) {
-    EXPECT_EQ(strategy.proceed(price(10.0)), MAStrategy::Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(11.0)), MAStrategy::Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(12.0)), MAStrategy::Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(13.0)), MAStrategy::Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(10.0)).signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(11.0)).signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(12.0)).signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(13.0)).signal, Signal::NONE);
 }
 
 TEST_F(MAStrategyTest, DetectsGoldenCross) {
@@ -25,9 +27,13 @@ TEST_F(MAStrategyTest, DetectsGoldenCross) {
     strategy.proceed(price(70));
 
     // Fast (2-period) will react much quicker than Slow (4-period)
-    const auto signal = strategy.proceed(price(150));
+    const auto strategy_output = strategy.proceed(price(150));
 
-    EXPECT_EQ(signal, MAStrategy::Signal::BUY);
+    EXPECT_EQ(strategy_output.signal, Signal::BUY);
+
+    // t should be in range <0, 1>
+    EXPECT_GE(strategy_output.t, 0.0);
+    EXPECT_LE(strategy_output.t, 1.0);
 }
 
 TEST_F(MAStrategyTest, DetectsDeathCross) {
@@ -37,9 +43,14 @@ TEST_F(MAStrategyTest, DetectsDeathCross) {
     strategy.proceed(price(40));
 
     // Price crashes
-    const auto signal = strategy.proceed(price(5));
+    const auto strategy_output = strategy.proceed(price(5));
 
-    EXPECT_EQ(signal, MAStrategy::Signal::SELL);
+    EXPECT_EQ(strategy_output.signal, Signal::SELL);
+    EXPECT_NEAR(strategy_output.price, 5.0, 0.001);
+
+    // T must be valid
+    EXPECT_GE(strategy_output.t, 0.0);
+    EXPECT_LE(strategy_output.t, 1.0);
 }
 
 TEST(MAStrategyConstructor, ThrowsOnInvalidIntervals) {

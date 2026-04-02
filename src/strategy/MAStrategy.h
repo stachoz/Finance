@@ -2,25 +2,25 @@
 
 #include <deque>
 
-#include "../Statisitcs.h"
-#include "../TimeSeries.h"
+#include "IStrategy.h"
+#include "TimeSeries.h"
 
-class MAStrategy {
+class MAStrategy : public IStrategy{
 public:
+
     MAStrategy(size_t fast_period, size_t slow_period);
 
-    enum class Signal : uint8_t {
-        BUY,
-        SELL,
-        NONE
-    };
+    ~MAStrategy() override = default;
 
-    Signal proceed(const DOHLCV& dohlcv);
+    StrategyOutput proceed(const DOHLCV& dohlcv) override;
 
 private:
     static Signal get_signal(double prev_fast, double curr_fast, double prev_slow, double curr_slow);
 
     static void update_window(std::deque<double> &window, double &sum, double new_value, size_t size);
+
+    static std::pair<double, double> calculate_intersection_price(double prev_fast, double curr_fast, double prev_slow,
+                                                                  double curr_slow);
 
     size_t fast_period;
     size_t slow_period;

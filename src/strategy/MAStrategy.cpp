@@ -8,27 +8,40 @@ MAStrategy::MAStrategy(size_t fast_period, size_t slow_period):
     }
 }
 
-MAStrategy::Signal MAStrategy::proceed(const DOHLCV& dohlcv) {
+StrategyOutput MAStrategy::proceed(const DOHLCV& dohlcv) {
     const double closing_price = dohlcv.close;
 
-    const double prev_fast = fast_window.empty() ? 0 : fast_sum / fast_period;
-    const double prev_slow = slow_window.empty() ? 0 : slow_sum / slow_period;
-
+    const double prev_fast = fast_window.empty() ? 0 : fast_sum / fast_window.size();
+    const double prev_slow = slow_window.empty() ? 0 : slow_sum / slow_window.size();
 
     update_window(fast_window, fast_sum, closing_price, fast_period);
     update_window(slow_window, slow_sum, closing_price, slow_period);
 
     if (fast_window.size() < fast_period || slow_window.size() < slow_period) {
-        return Signal::NONE;
+        return {Signal::NONE, 0, 0, 0};
     }
 
-    const double curr_fast = fast_sum / fast_period;
-    const double curr_slow = slow_sum / slow_period;
+    const double curr_fast = fast_sum / fast_window.size();
+    const double curr_slow = slow_sum / slow_window.size();
 
-    return get_signal(prev_fast, curr_fast, prev_slow, curr_slow);
+    const Signal signal = get_signal(prev_fast, curr_fast, prev_slow, curr_slow);
+    std::pair<double, double> cross_price_t {};
+
+    if (signal != Signal::NONE) {
+        cross_price_t = calculate_intersection_price(prev_fast, curr_fast, prev_slow, curr_slow);
+    }
+
+    return {
+        signal,
+        curr_fast,
+        curr_slow,
+        closing_price,
+        cross_price_t.first,
+        cross_price_t.second
+    };
 }
 
-MAStrategy::Signal MAStrategy::get_signal(double prev_fast, double curr_fast, double prev_slow, double curr_slow) {
+Signal MAStrategy::get_signal(double prev_fast, double curr_fast, double prev_slow, double curr_slow) {
     if (prev_fast <= prev_slow && curr_fast > curr_slow) {
         return Signal::BUY;
     }
@@ -47,4 +60,11 @@ void MAStrategy::update_window(std::deque<double>& window, double& sum, double n
 
     window.push_back(new_value);
     sum += new_value;
+}
+
+std::pair<double, double> MAStrategy::calculate_intersection_price(double prev_fast, double curr_fast, double prev_slow,
+                                                                   double curr_slow) {
+    const double t = (prev_slow - prev_fast) / ((curr_fast - prev_fast) - (curr_slow - prev_slow));
+
+    return {prev_fast + t * (curr_fast - prev_fast), t};
 }
