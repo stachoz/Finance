@@ -15,11 +15,17 @@ list(FILTER LIB_SOURCES EXCLUDE REGEX ".*main.cpp$")
 add_library(${PROJECT_NAME}_lib ${LIB_SOURCES})
 target_include_directories(${PROJECT_NAME}_lib PUBLIC
         ${PROJECT_SOURCE_DIR}/utils
+        ${PROJECT_SOURCE_DIR}/src
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
 
 enable_testing()
 add_subdirectory(tests)
+
+target_compile_definitions(${PROJECT_NAME}_lib PUBLIC
+        PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}"
+)

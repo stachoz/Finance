@@ -168,4 +168,9 @@ CMakeUserPresets.json
 # External projects
 *-prefix/
 
-# End of https://www.toptal.com/developers/gitignore/api/c++,clion,cmake
+# Virutal Env
+.venv/
+
+# test-data
+
+test-data/*.csv
