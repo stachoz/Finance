@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <stdexcept>
 
 namespace stats {
 
@@ -52,11 +53,11 @@ namespace stats {
     }
 
     /// Calculates average of given data
-    /// @tparam T numeric type of input values
+    /// @tparam T type of container
     /// \param values input sequence
     /// @return mean value or 0 if the \a values is empty
     template<typename T>
-    double mean(const std::vector<T>& values) {
+    double mean(const T& values) {
         if(values.empty()) {
             return 0;
         }
@@ -71,7 +72,7 @@ namespace stats {
     /// \brief Computes a simple moving average over a sliding window.
     /// \tparam T numeric type of input values
     /// \param values Input sequence
-    /// \param window windwo size (must be > 0)
+    /// \param window window size (must be > 0)
     /// \return Vector of averages values, one for each full window.
     /// Empty if values.size() < window
     template<typename T>
