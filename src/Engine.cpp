@@ -1,34 +1,23 @@
 #include "Engine.h"
 
+#include "Wallet.h"
+
 namespace fs = std::filesystem;
 
 void Engine::run() const {
-    const auto sliced_time_series =  time_series.slice({2025y, January, 1d});
-
-    int buy = 0;
-    int sell = 0;
-    int none = 0;
+    const auto sliced_time_series =  time_series.slice({2024y, January, 1d});
 
     CSVStrategyRecorder strategy {std::make_unique<MAStrategy>(7, 21)};
+    const auto wallet = std::make_unique<Wallet>(10'000, 30);
 
     for (const auto& data : sliced_time_series) {
-        const StrategyOutput strategy_output = strategy.proceed(data);
-
-        switch (const auto signal = strategy_output.signal) {
-            case Signal::BUY:
-                buy++;
-                break;
-            case Signal::SELL:
-                sell++;
-                break;
-            case Signal::NONE:
-                none++;
-                break;
-        }
+        const auto strategy_output =  strategy.proceed(data);
+        wallet->update(strategy_output.signal, strategy_output.price);
     }
 
-    fs::path output_path = fs::path(PROJECT_ROOT_DIR) / "test-data" / "strategy-output.csv";
+    std::cout << "Final stats: " << std::endl << wallet->get_string();
 
+    const fs::path output_path = fs::path(PROJECT_ROOT_DIR) / "test-data" / "strategy-output.csv";
     strategy.save_to_file(output_path, {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T"});
 }
 
