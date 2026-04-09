@@ -5,13 +5,13 @@
 namespace fs = std::filesystem;
 
 void Engine::run() const {
-    const auto sliced_time_series =  time_series.slice({2024y, January, 1d});
+    const auto sliced_time_series = time_series.slice({2024y, January, 1d});
 
     CSVStrategyRecorder strategy {std::make_unique<MAStrategy>(7, 21)};
     const auto wallet = std::make_unique<Wallet>(10'000, 30);
 
     for (const auto& data : sliced_time_series) {
-        const auto strategy_output =  strategy.proceed(data);
+        const auto strategy_output = strategy.proceed(data);
         wallet->update(strategy_output.signal, strategy_output.price);
     }
 

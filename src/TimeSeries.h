@@ -19,7 +19,7 @@ struct DOHLCV {
 
 class TimeSeries {
 public:
-    explicit TimeSeries(const std::vector<std::vector<std::string>>& data);
+    explicit TimeSeries(const std::vector<DOHLCV>& data);
 
     TimeSeries() = default;
 
@@ -34,6 +34,8 @@ public:
     auto end() const {
         return values.end();
     }
+
+    void reserve(size_t size);
 
     std::span<const DOHLCV> slice(year_month_day start_date, std::optional<year_month_day> end_date = std::nullopt) const;
 

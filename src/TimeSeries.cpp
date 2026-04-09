@@ -1,24 +1,7 @@
 #include "TimeSeries.h"
 
-TimeSeries::TimeSeries(const std::vector<std::vector<std::string>> &data) {
-    for(const auto& row : data) {
-        const year_month_day ymd {
-            year(std::stoi(row[0].substr(0, 4))),
-            month(std::stoi(row[0].substr(5, 2))),
-            day(std::stoi(row[0].substr(8, 2)))
-        };
-
-        DOHLCV point {
-            ymd,
-            std::stod(row[1]),
-            std::stod(row[2]),
-            std::stod(row[3]),
-            std::stod(row[4]),
-            std::stod(row[5])
-        };
-
-        push_back(point);
-    }
+TimeSeries::TimeSeries(const std::vector<DOHLCV> &data) {
+    values = data;
 }
 
 void TimeSeries::push_back(const DOHLCV &point) {
@@ -27,6 +10,10 @@ void TimeSeries::push_back(const DOHLCV &point) {
 
 size_t TimeSeries::size() const {
     return values.size();
+}
+
+void TimeSeries::reserve(size_t size) {
+    values.reserve(size);
 }
 
 std::span<const DOHLCV> TimeSeries::slice(year_month_day start_date, std::optional<year_month_day> end_date) const {

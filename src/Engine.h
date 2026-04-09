@@ -12,5 +12,4 @@ public:
 
 private:
     TimeSeries time_series;
-
 };

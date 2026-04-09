@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "IStrategy.h"
+#include "File.hpp"
 
 class CSVStrategyRecorder : public IStrategy{
 public:

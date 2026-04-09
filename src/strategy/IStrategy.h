@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
-
 #include "TimeSeries.h"
 
 enum class Signal : uint8_t {
@@ -36,6 +34,16 @@ struct StrategyOutput {
     double transaction_price;
     double t;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const StrategyOutput &output) {
+    os << output.signal << ","
+            << output.fast_ma << ","
+            << output.slow_ma << ","
+            << output.price << ","
+            << output.transaction_price << ","
+            << output.t << "\n";
+    return os;
+}
 
 class IStrategy {
 public:
