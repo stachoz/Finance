@@ -28,4 +28,6 @@ private:
     double shares_per_transaction {0};
     double owned_shares {0};
     double last_price {0};
+
+    std::vector<std::pair<double, double>> wallet_history; // market price, net-worth
 };

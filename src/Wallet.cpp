@@ -13,6 +13,8 @@ void Wallet::update(Signal signal, double price) {
         case Signal::NONE:
             break;
     }
+
+    wallet_history.emplace_back(last_price, get_total_net_worth());
 }
 
 std::string Wallet::get_string() const {
