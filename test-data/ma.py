@@ -1,33 +1,40 @@
-from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 base_path = Path(__file__).parent
+df_strat = pd.read_csv(base_path / "strategy-output.csv")
+df_wallet = pd.read_csv(base_path / "wallet-output.csv")
 
-df = pd.read_csv(base_path / "strategy-output.csv")
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), sharex=True,
+                               gridspec_kw={'height_ratios': [2, 1]})
 
-plt.figure(figsize=(14, 7))
+ax1.plot(df_strat.index, df_strat['Price'], label='Price', color='gray', alpha=0.3, linewidth=1)
+ax1.plot(df_strat.index, df_strat['Fast_MA'], label='Fast MA', color='blue', linewidth=1.2)
+ax1.plot(df_strat.index, df_strat['Slow_MA'], label='Slow MA', color='orange', linewidth=1.2)
 
-plt.plot(df.index, df['Price'], label='Price', color='gray', alpha=0.4, linewidth=1)
-plt.plot(df.index, df['Fast_MA'], label='Fast MA', color='blue', linewidth=1.5)
-plt.plot(df.index, df['Slow_MA'], label='Slow MA', color='orange', linewidth=1.5)
+buys = df_strat[df_strat['Signal'] == 'BUY']
+sells = df_strat[df_strat['Signal'] == 'SELL']
+ax1.scatter(buys.index - 1 + buys["T"], buys['Transaction_Price'],
+            marker='X', color='green', s=60, label='BUY', zorder=5)
+ax1.scatter(sells.index - 1 + sells["T"], sells['Transaction_Price'],
+            marker='X', color='red', s=60, label='SELL', zorder=5)
 
-buys = df[df['Signal'] == 'BUY']
-sells = df[df['Signal'] == 'SELL']
+ax1.set_title('MA Crossover Strategy & Equity Curve', fontsize=16)
+ax1.set_ylabel('Price (USD)')
+ax1.legend(loc='upper left')
+ax1.grid(True, alpha=0.3)
 
-buys_x = buys.index - 1 + buys["T"]
-sells_x = sells.index - 1 + sells["T"]
+ax2.plot(df_wallet.index, df_wallet['NetWorth'], label='Total Net Worth', color='purple', linewidth=2)
+ax2.fill_between(df_wallet.index, df_wallet['NetWorth'], 10000,
+                 where=(df_wallet['NetWorth'] >= 10000), color='green', alpha=0.1)
+ax2.fill_between(df_wallet.index, df_wallet['NetWorth'], 10000,
+                 where=(df_wallet['NetWorth'] < 10000), color='red', alpha=0.1)
 
-plt.scatter(buys_x, buys['Transaction_Price'], label='BUY Signal',
-            marker='X', color='green', s=30, zorder=5)
+ax2.set_ylabel('Equity (USD)')
+ax2.set_xlabel('Tick / Time Index')
+ax2.legend(loc='upper left')
+ax2.grid(True, alpha=0.3)
 
-plt.scatter(sells_x, sells['Transaction_Price'], label='SELL Signal',
-            marker='X', color='red', s=30, zorder=5)
-
-plt.title('MA Crossover Strategy Verification', fontsize=15)
-plt.xlabel('Tick / Time Index')
-plt.ylabel('Price')
-plt.legend()
-plt.grid(True, which='both', linestyle='--', alpha=0.5)
-
+plt.tight_layout()
 plt.show()
