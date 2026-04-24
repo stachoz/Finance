@@ -21,7 +21,7 @@ inline std::ostream& operator<<(std::ostream& stream, Signal signal) {
             stream << "NONE";
             break;
         default:
-            stream << "BUY";
+            stream << "UNKNOWN";
     }
     return stream;
 }
@@ -32,17 +32,16 @@ struct StrategyOutput {
     double slow_ma;
     double price;
     double transaction_price;
-    double t;
+    double t;                           /// Fractional day offset used to interpolate the precise timing of the crossover
 };
 
-inline std::ostream& operator<<(std::ostream& os, const StrategyOutput &output) {
+inline void write_strategy_as_row(std::ostream& os, const StrategyOutput &output) {
     os << output.signal << ","
             << output.fast_ma << ","
             << output.slow_ma << ","
             << output.price << ","
             << output.transaction_price << ","
             << output.t << "\n";
-    return os;
 }
 
 class IStrategy {

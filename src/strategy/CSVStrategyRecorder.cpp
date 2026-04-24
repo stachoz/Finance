@@ -8,10 +8,6 @@ StrategyOutput CSVStrategyRecorder::proceed(const DOHLCV &data) {
     return strategy_output;
 }
 
-void CSVStrategyRecorder::save_to_file(const std::filesystem::path &filename,
-    const std::vector<std::string> &header) const {
-    utils::csv::save_to_file(
-        data_history,
-        filename,
-        header);
+const std::vector<StrategyOutput> & CSVStrategyRecorder::get_data_history() const {
+    return data_history;
 }

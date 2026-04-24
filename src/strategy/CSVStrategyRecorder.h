@@ -13,8 +13,7 @@ public:
 
     StrategyOutput proceed(const DOHLCV &data) override;
 
-    void save_to_file(const std::filesystem::path &filename, const std::vector<std::string>& header = {}) const;
-
+    const std::vector<StrategyOutput>& get_data_history() const;
 private:
     std::unique_ptr<IStrategy> decorated_strategy;
     std::vector<StrategyOutput> data_history {};

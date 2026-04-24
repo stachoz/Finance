@@ -69,20 +69,21 @@ namespace utils::csv {
         return result;
     }
 
-    template <typename T>
+    template <typename T, typename RowWriter>
     void save_to_file(const std::vector<T>& data_to_save, const std::filesystem::path& output_path,
+            RowWriter row_writer,
             const std::vector<std::string>& header = {}) {
-        std::ofstream file(output_path.string());
+        std::ofstream file(output_path);
 
         if (!header.empty()) {
-            for (int i = 0; i < header.size() - 1; ++i) {
+            for (size_t i = 0; i < header.size() - 1; ++i) {
                 file << header[i] << ",";
             }
             file << header[header.size() - 1] << "\n";
         }
 
         for (const auto& d : data_to_save) {
-            file << d;
+            row_writer(file, d);
         }
     }
 };

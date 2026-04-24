@@ -17,6 +17,7 @@ public:
 
     double get_owned_shares() const;
 
+    const std::vector<std::pair<double, double>>& get_wallet_history() const;
 private:
     void buy(double price);
 

@@ -1,7 +1,5 @@
 #include "Engine.h"
 
-#include "Wallet.h"
-
 namespace fs = std::filesystem;
 
 void Engine::run() const {
@@ -16,9 +14,31 @@ void Engine::run() const {
     }
 
     std::cout << "Final stats: " << std::endl << wallet->get_string();
+    generate_stats_files(strategy, *wallet);
+}
 
-    const fs::path output_path = fs::path(PROJECT_ROOT_DIR) / "test-data" / "strategy-output.csv";
-    strategy.save_to_file(output_path, {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T"});
+void Engine::generate_stats_files(const CSVStrategyRecorder& strategy, const Wallet &wallet) {
+    const fs::path stats_file_path_dir = fs::path(PROJECT_ROOT_DIR) / "test-data";
+    const fs::path output_path = stats_file_path_dir /  "strategy-output.csv";
+    const fs::path wallet_path = stats_file_path_dir /  "wallet-output.csv";
+
+    utils::csv::save_to_file(
+        strategy.get_data_history(),
+        output_path,
+        write_strategy_as_row,
+        {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T"}
+    );
+
+    constexpr auto write_row = [](std::ostream& os, const std::pair<double, double>& row) {
+        os << std::setprecision(5) << row.first << "," << row.second << "\n";
+    };
+
+    utils::csv::save_to_file<std::pair<double, double>>(
+        wallet.get_wallet_history(),
+        wallet_path,
+        write_row,
+        {"price", "NetWorth"}
+    );
 }
 
 void Engine::set_time_series(const TimeSeries &value) {

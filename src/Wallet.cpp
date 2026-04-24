@@ -40,6 +40,10 @@ double Wallet::get_owned_shares() const {
     return owned_shares;
 }
 
+const std::vector<std::pair<double, double>> & Wallet::get_wallet_history() const {
+    return wallet_history;
+}
+
 void Wallet::buy(double price) {
     const double transaction_value = shares_per_transaction * price;
 
