@@ -69,9 +69,10 @@ namespace utils::csv {
         return result;
     }
 
-    template <typename T, typename RowWriter>
+    template <typename T, typename RowWriterCallable>
+    requires std::invocable<RowWriterCallable, std::ostream&, const T&>
     void save_to_file(const std::vector<T>& data_to_save, const std::filesystem::path& output_path,
-            RowWriter row_writer,
+            RowWriterCallable row_writer,
             const std::vector<std::string>& header = {}) {
         std::ofstream file(output_path);
 

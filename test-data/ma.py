@@ -13,12 +13,22 @@ ax1.plot(df_strat.index, df_strat['Price'], label='Price', color='gray', alpha=0
 ax1.plot(df_strat.index, df_strat['Fast_MA'], label='Fast MA', color='blue', linewidth=1.2)
 ax1.plot(df_strat.index, df_strat['Slow_MA'], label='Slow MA', color='orange', linewidth=1.2)
 
-buys = df_strat[df_strat['Signal'] == 'BUY']
-sells = df_strat[df_strat['Signal'] == 'SELL']
-ax1.scatter(buys.index - 1 + buys["T"], buys['Transaction_Price'],
-            marker='X', color='green', s=60, label='BUY', zorder=5)
-ax1.scatter(sells.index - 1 + sells["T"], sells['Transaction_Price'],
-            marker='X', color='red', s=60, label='SELL', zorder=5)
+completed_buys = df_strat[(df_strat['Signal'] == 'BUY') & (df_strat['Completed'] == 1)]
+completed_sells = df_strat[(df_strat['Signal'] == 'SELL') & (df_strat['Completed'] == 1)]
+
+incomplete_buys = df_strat[(df_strat['Signal'] == 'BUY') & (df_strat['Completed'] == 0)]
+incomplete_sells = df_strat[(df_strat['Signal'] == 'SELL') & (df_strat['Completed'] == 0)]
+
+ax1.scatter(completed_buys.index - 1 + completed_buys["T"], completed_buys['Transaction_Price'],
+            marker='X', color='green', s=100, label='Completed BUY', zorder=5)
+ax1.scatter(completed_sells.index - 1 + completed_sells["T"], completed_sells['Transaction_Price'],
+            marker='X', color='red', s=100, label='Completed SELL', zorder=5)
+
+ax1.scatter(incomplete_buys.index - 1 + incomplete_buys["T"], incomplete_buys['Transaction_Price'],
+            marker='o', facecolors='none', edgecolors='green', s=100, label='Incomplete BUY', zorder=4)
+ax1.scatter(incomplete_sells.index - 1 + incomplete_sells["T"], incomplete_sells['Transaction_Price'],
+            marker='o', facecolors='none', edgecolors='red', s=100, label='Incomplete SELL', zorder=4)
+
 
 ax1.set_title('MA Crossover Strategy & Equity Curve', fontsize=16)
 ax1.set_ylabel('Price (USD)')

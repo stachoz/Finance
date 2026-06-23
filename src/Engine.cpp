@@ -10,7 +10,9 @@ void Engine::run() const {
 
     for (const auto& data : sliced_time_series) {
         const auto strategy_output = strategy.proceed(data);
-        wallet->update(strategy_output.signal, strategy_output.price);
+        if (const bool was_successful = wallet->update(strategy_output.signal, strategy_output.price); !was_successful) {
+            strategy.mark_last_as_not_completed();
+        }
     }
 
     std::cout << "Final stats: " << std::endl << wallet->get_string();
@@ -26,10 +28,10 @@ void Engine::generate_stats_files(const CSVStrategyRecorder& strategy, const Wal
         strategy.get_data_history(),
         output_path,
         write_strategy_as_row,
-        {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T"}
+        {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T", "Completed"}
     );
 
-    constexpr auto write_row = [](std::ostream& os, const std::pair<double, double>& row) {
+    auto write_row = [](std::ostream& os, const std::pair<double, double>& row) {
         os << std::setprecision(5) << row.first << "," << row.second << "\n";
     };
 

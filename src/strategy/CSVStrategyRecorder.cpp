@@ -11,3 +11,7 @@ StrategyOutput CSVStrategyRecorder::proceed(const DOHLCV &data) {
 const std::vector<StrategyOutput> & CSVStrategyRecorder::get_data_history() const {
     return data_history;
 }
+
+void CSVStrategyRecorder::mark_last_as_not_completed() {
+    data_history.back().completed = false;
+}

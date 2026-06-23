@@ -1,20 +1,22 @@
 #include "Wallet.h"
 
-void Wallet::update(Signal signal, double price) {
+bool Wallet::update(Signal signal, double price) {
     last_price = price;
 
+    bool was_transaction_completed = true;
     switch (signal) {
         case Signal::BUY:
-            buy(price);
+            was_transaction_completed = buy(price);
             break;
         case Signal::SELL:
-            sell(price);
+            was_transaction_completed = sell(price);
             break;
         case Signal::NONE:
             break;
     }
 
     wallet_history.emplace_back(last_price, get_total_net_worth());
+    return was_transaction_completed;
 }
 
 std::string Wallet::get_string() const {
@@ -44,23 +46,31 @@ const std::vector<std::pair<double, double>> & Wallet::get_wallet_history() cons
     return wallet_history;
 }
 
-void Wallet::buy(double price) {
+bool Wallet::buy(double price) {
     const double transaction_value = shares_per_transaction * price;
 
     if (transaction_value > saldo) {
-        return;
+        return false;
     }
 
     saldo -= transaction_value;
     owned_shares += shares_per_transaction;
+
+    return true;
 }
 
-void Wallet::sell(double price) {
+bool Wallet::sell(double price) {
+    if (owned_shares == 0) {
+        return false;
+    }
+
     const double shares_to_sell = std::min(owned_shares, shares_per_transaction);
     const double transaction_value = shares_to_sell * price;
 
     saldo += transaction_value;
     owned_shares -= shares_to_sell;
+
+    return true;
 }
 
 double Wallet::calculate_shares_value() const {

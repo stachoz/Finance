@@ -14,6 +14,9 @@ public:
     StrategyOutput proceed(const DOHLCV &data) override;
 
     const std::vector<StrategyOutput>& get_data_history() const;
+
+    void mark_last_as_not_completed();
+
 private:
     std::unique_ptr<IStrategy> decorated_strategy;
     std::vector<StrategyOutput> data_history {};
