@@ -39,18 +39,21 @@ namespace utils::csv {
             const char* ptr = line.data();
             const char* end = line.data() + line.size();
 
-            int y, m, d;
+            int y;
+            unsigned m;
+            unsigned d;
+
             std::from_chars(ptr, ptr + 4, y);
             std::from_chars(ptr + 5, ptr + 7, m);
             std::from_chars(ptr + 8, ptr + 10, d);
 
             std::chrono::year_month_day ymd {
                 std::chrono::year{y},
-                std::chrono::month{static_cast<unsigned>(y)},
-                std::chrono::day{static_cast<unsigned>(m)}
+                std::chrono::month{m},
+                std::chrono::day{d}
             };
 
-            skip_to_next(ptr, end);
+            ptr = skip_to_next(ptr, end);
 
             // open, high, low, close, volume
             std::array<double, 5> values {};
@@ -75,7 +78,6 @@ namespace utils::csv {
             RowWriterCallable row_writer,
             const std::vector<std::string>& header = {}) {
         std::ofstream file(output_path);
-
         if (!header.empty()) {
             for (size_t i = 0; i < header.size() - 1; ++i) {
                 file << header[i] << ",";

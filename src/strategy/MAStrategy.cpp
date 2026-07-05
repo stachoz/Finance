@@ -36,9 +36,8 @@ StrategyOutput MAStrategy::proceed(const DOHLCV& dohlcv) {
         signal,
         curr_fast,
         curr_slow,
-        closing_price,
         cross_price_t.first,
-        cross_price_t.second
+        cross_price_t.second,
     };
 }
 

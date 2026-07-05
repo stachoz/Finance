@@ -8,11 +8,14 @@ void Engine::run() const {
     CSVStrategyRecorder strategy {std::make_unique<MAStrategy>(7, 21)};
     const auto wallet = std::make_unique<Wallet>(10'000, 30);
 
+    auto awaiting_task = Signal::NONE;
+
     for (const auto& data : sliced_time_series) {
+        // Signal is computed based on closing price.
+        // Transaction is made with open price to simulate delay
+        wallet->update(awaiting_task, data.open);
         const auto strategy_output = strategy.proceed(data);
-        if (const bool was_successful = wallet->update(strategy_output.signal, strategy_output.price); !was_successful) {
-            strategy.mark_last_as_not_completed();
-        }
+        awaiting_task = strategy_output.signal;
     }
 
     std::cout << "Final stats: " << std::endl << wallet->get_string();
@@ -28,7 +31,7 @@ void Engine::generate_stats_files(const CSVStrategyRecorder& strategy, const Wal
         strategy.get_data_history(),
         output_path,
         write_strategy_as_row,
-        {"Signal", "Fast_MA", "Slow_MA", "Price", "Transaction_Price", "T", "Completed"}
+        {"signal", "fast_ma", "slow_ma", "price","t"}
     );
 
     auto write_row = [](std::ostream& os, const std::pair<double, double>& row) {
@@ -39,7 +42,7 @@ void Engine::generate_stats_files(const CSVStrategyRecorder& strategy, const Wal
         wallet.get_wallet_history(),
         wallet_path,
         write_row,
-        {"price", "NetWorth"}
+        {"market_price", "net_worth"}
     );
 }
 

@@ -30,10 +30,9 @@ struct StrategyOutput {
     Signal signal;
     double fast_ma;
     double slow_ma;
-    double price;
-    double transaction_price;
+    double price;                       /// Signal price
     double t;                           /// Fractional day offset used to interpolate the precise timing of the crossover
-    bool completed = true;
+    year_month_day date;                /// Date of closing price, based on which signal was caluclated
 };
 
 inline void write_strategy_as_row(std::ostream& os, const StrategyOutput &output) {
@@ -41,9 +40,7 @@ inline void write_strategy_as_row(std::ostream& os, const StrategyOutput &output
         << output.fast_ma << ","
         << output.slow_ma << ","
         << output.price << ","
-        << output.transaction_price << ","
-        << output.t << ","
-        << static_cast<int>(output.completed) << "\n";
+        << output.t << "\n";
 }
 
 class IStrategy {

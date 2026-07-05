@@ -15,7 +15,7 @@ bool Wallet::update(Signal signal, double price) {
             break;
     }
 
-    wallet_history.emplace_back(last_price, get_total_net_worth());
+    wallet_history.emplace_back(price, get_total_net_worth());
     return was_transaction_completed;
 }
 
@@ -23,9 +23,9 @@ std::string Wallet::get_string() const {
     std::stringstream ss;
 
     ss << "saldo: " << saldo << std::endl
-            << "shares_per_transaction: " << shares_per_transaction << std::endl
-            << "owned_shares: " << owned_shares << std::endl
-            << "net_worth: " << get_total_net_worth() << std::endl;
+        << "shares_per_transaction: " << shares_per_transaction << std::endl
+        << "owned_shares: " << owned_shares << std::endl
+        << "net_worth: " << get_total_net_worth() << std::endl;
 
     return ss.str();
 }
