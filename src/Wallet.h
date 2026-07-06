@@ -19,6 +19,10 @@ public:
 
     double get_owned_shares() const;
 
+    double get_spread() const;
+
+    double get_commission_per_share() const;
+
     const std::vector<std::pair<double, double>>& get_wallet_history() const;
 private:
     bool buy(double price);
@@ -27,10 +31,20 @@ private:
 
     double calculate_shares_value() const;
 
+    double calculate_commission(double shares_amount) const;
+
+    double spread = 0.02;
+
+public:
+    void set_spread(double spread);
+
+    void set_commission_per_share(double commission_per_share);
+
+private:
+    double commission_per_share = 0.0035;
     double saldo {0};
     double shares_per_transaction {0};
     double owned_shares {0};
-    double last_price {0};
 
     std::vector<std::pair<double, double>> wallet_history; // market price, net-worth
 };

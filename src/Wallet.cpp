@@ -1,9 +1,8 @@
 #include "Wallet.h"
 
 bool Wallet::update(Signal signal, double price) {
-    last_price = price;
-
     bool was_transaction_completed = true;
+
     switch (signal) {
         case Signal::BUY:
             was_transaction_completed = buy(price);
@@ -30,30 +29,17 @@ std::string Wallet::get_string() const {
     return ss.str();
 }
 
-double Wallet::get_total_net_worth() const {
-    return saldo + calculate_shares_value();
-}
-
-double Wallet::get_saldo() const {
-    return saldo;
-}
-
-double Wallet::get_owned_shares() const {
-    return owned_shares;
-}
-
-const std::vector<std::pair<double, double>> & Wallet::get_wallet_history() const {
-    return wallet_history;
-}
 
 bool Wallet::buy(double price) {
-    const double transaction_value = shares_per_transaction * price;
+    // buying for higher price (ask)
+    const double execution_price = price + (spread / 2.0);
+    const double total_cost = shares_per_transaction * execution_price + calculate_commission(shares_per_transaction);
 
-    if (transaction_value > saldo) {
+    if (total_cost > saldo) {
         return false;
     }
 
-    saldo -= transaction_value;
+    saldo -= total_cost;
     owned_shares += shares_per_transaction;
 
     return true;
@@ -64,15 +50,55 @@ bool Wallet::sell(double price) {
         return false;
     }
 
+    // selling for lower price (bid)
+    const double execution_price = price - (spread / 2.0);
     const double shares_to_sell = std::min(owned_shares, shares_per_transaction);
-    const double transaction_value = shares_to_sell * price;
+    const double total_revenue = shares_to_sell * execution_price - calculate_commission(shares_to_sell);
 
-    saldo += transaction_value;
+    saldo += total_revenue;
     owned_shares -= shares_to_sell;
 
     return true;
 }
 
 double Wallet::calculate_shares_value() const {
-    return owned_shares * last_price;
+    if (wallet_history.empty()) {
+        return 0.0;
+    }
+    return owned_shares * wallet_history.back().first;
+}
+
+double Wallet::calculate_commission(double shares_amount) const {
+    return std::max(shares_amount * commission_per_share, 1.0);
+}
+
+double Wallet::get_total_net_worth() const {
+    return saldo + calculate_shares_value();
+}
+double Wallet::get_saldo() const {
+    return saldo;
+}
+
+double Wallet::get_owned_shares() const {
+    return owned_shares;
+}
+
+double Wallet::get_spread() const {
+    return spread;
+}
+
+double Wallet::get_commission_per_share() const {
+    return commission_per_share;
+}
+
+void Wallet::set_spread(double spread) {
+    this->spread = spread;
+}
+
+void Wallet::set_commission_per_share(double commission_per_share) {
+    this->commission_per_share = commission_per_share;
+}
+
+const std::vector<std::pair<double, double>> & Wallet::get_wallet_history() const {
+    return wallet_history;
 }
