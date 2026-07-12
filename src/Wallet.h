@@ -17,6 +17,10 @@ public:
 
     double get_saldo() const;
 
+    /// it is saldo after the first signal. It may be different from
+    /// saldo passed as Wallet constructor parameter
+    double get_initial_saldo() const;
+
     double get_owned_shares() const;
 
     double get_spread() const;

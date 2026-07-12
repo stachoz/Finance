@@ -1,13 +1,13 @@
-#include "CSVStrategyRecorder.h"
+#include "StrategyRecorder.h"
 
 
-StrategyOutput CSVStrategyRecorder::proceed(const DOHLCV &data) {
+StrategyOutput StrategyRecorder::proceed(const DOHLCV &data) {
     const StrategyOutput strategy_output = decorated_strategy->proceed(data);
     data_history.push_back(strategy_output);
 
     return strategy_output;
 }
 
-const std::vector<StrategyOutput> & CSVStrategyRecorder::get_data_history() const {
+const std::vector<StrategyOutput> & StrategyRecorder::get_data_history() const {
     return data_history;
 }

@@ -7,9 +7,9 @@
 #include "IStrategy.h"
 #include "File.hpp"
 
-class CSVStrategyRecorder : public IStrategy{
+class StrategyRecorder : public IStrategy{
 public:
-    explicit CSVStrategyRecorder(std::unique_ptr<IStrategy> strategy) : decorated_strategy(std::move(strategy)) {}
+    explicit StrategyRecorder(std::unique_ptr<IStrategy> strategy) : decorated_strategy(std::move(strategy)) {}
 
     StrategyOutput proceed(const DOHLCV &data) override;
 

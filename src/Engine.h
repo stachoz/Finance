@@ -2,17 +2,20 @@
 
 #include "strategy/MAStrategy.h"
 #include "TimeSeries.h"
-#include "strategy/CSVStrategyRecorder.h"
+#include "strategy/StrategyRecorder.h"
 #include "Wallet.h"
 
 class Engine {
 public:
+    Engine(std::span<const DOHLCV> data, std::unique_ptr<IStrategy> strategy, std::unique_ptr<Wallet> wallet)
+        : data(data),
+            strategy(std::move(strategy)),
+            wallet(std::move(wallet)) {}
+
     void run() const;
 
-    void set_time_series(const TimeSeries& value);
-
 private:
-    static void generate_stats_files(const CSVStrategyRecorder &strategy, const Wallet &wallet);
-
-    TimeSeries time_series;
+    std::span<const DOHLCV> data;
+    std::unique_ptr<IStrategy> strategy;
+    std::unique_ptr<Wallet> wallet;
 };

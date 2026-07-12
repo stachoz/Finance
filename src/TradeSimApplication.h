@@ -11,6 +11,6 @@ public:
     void start_app();
 
 private:
-    Engine engine;
+    std::unique_ptr<Engine> engine;
     fs::path aapl_data = fs::path(PROJECT_ROOT_DIR) / "aapl_us_d.csv";
 };

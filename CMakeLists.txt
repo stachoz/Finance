@@ -19,6 +19,7 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp
+        src/CSVExporter.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
@@ -28,4 +29,7 @@ add_subdirectory(tests)
 
 target_compile_definitions(${PROJECT_NAME}_lib PUBLIC
         PROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}"
+)
+target_compile_definitions(${PROJECT_NAME}_lib PUBLIC
+        TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/test-data"
 )

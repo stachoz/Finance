@@ -79,6 +79,13 @@ double Wallet::get_saldo() const {
     return saldo;
 }
 
+double Wallet::get_initial_saldo() const {
+    if (wallet_history.empty()) {
+        return 0;
+    }
+    return wallet_history.begin()->second;
+}
+
 double Wallet::get_owned_shares() const {
     return owned_shares;
 }
@@ -91,12 +98,12 @@ double Wallet::get_commission_per_share() const {
     return commission_per_share;
 }
 
-void Wallet::set_spread(double spread) {
-    this->spread = spread;
+void Wallet::set_spread(double value) {
+    spread = value;
 }
 
-void Wallet::set_commission_per_share(double commission_per_share) {
-    this->commission_per_share = commission_per_share;
+void Wallet::set_commission_per_share(double value) {
+    commission_per_share = value;
 }
 
 const std::vector<std::pair<double, double>> & Wallet::get_wallet_history() const {
