@@ -18,11 +18,11 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC
         ${PROJECT_SOURCE_DIR}/src
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp
-        src/CSVExporter.h
-)
+add_executable(Optimizer apps/Optimizer/main.cpp)
+target_link_libraries(Optimizer PRIVATE ${PROJECT_NAME}_lib)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_lib)
+add_executable(FinanceSim apps/FinanceSim/main.cpp)
+target_link_libraries(FinanceSim PRIVATE ${PROJECT_NAME}_lib)
 
 enable_testing()
 add_subdirectory(tests)

@@ -1,8 +1,13 @@
-#include "TradeSimApplication.h"
 #include "CSVExporter.h"
+#include "Engine.h"
+#include "File.hpp"
+#include "TimeSeries.h"
+#include "Wallet.h"
+#include "strategy/MAStrategy.h"
+#include "strategy/StrategyRecorder.h"
 
-void TradeSimApplication::start_app() {
-    const TimeSeries time_series {utils::csv::read(aapl_data, true)};
+int main() {
+    const TimeSeries time_series {utils::csv::read(fs::path(PROJECT_ROOT_DIR) / "aapl_us_d.csv", true)};
     auto sliced = time_series.slice({2022y, January, 1d});
 
     auto strategy_recorder = std::make_unique<StrategyRecorder>(std::make_unique<MAStrategy>(7, 21));
@@ -11,7 +16,7 @@ void TradeSimApplication::start_app() {
     const auto* recorder_view = strategy_recorder.get();
     const auto* wallet_view = wallet.get();
 
-    engine = std::make_unique<Engine>(
+    const auto engine = std::make_unique<Engine>(
         sliced,
         std::move(strategy_recorder),
         std::move(wallet)
