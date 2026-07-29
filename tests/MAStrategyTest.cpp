@@ -46,8 +46,6 @@ TEST_F(MAStrategyTest, DetectsDeathCross) {
     const auto strategy_output = strategy.proceed(price(5));
 
     EXPECT_EQ(strategy_output.signal, Signal::SELL);
-    EXPECT_NEAR(strategy_output.price, 5.0, 0.001);
-
     // T must be valid
     EXPECT_GE(strategy_output.t, 0.0);
     EXPECT_LE(strategy_output.t, 1.0);

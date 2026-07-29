@@ -14,6 +14,8 @@ public:
 
     void run() const;
 
+    const Wallet* get_wallet() const;
+
 private:
     std::span<const DOHLCV> data;
     std::unique_ptr<IStrategy> strategy;

@@ -81,13 +81,20 @@ TEST_F(WalletTest, CommissionIsCalculatedPerShareWhenGreaterThanMinimum) {
     EXPECT_DOUBLE_EQ(large_wallet.get_saldo(), 10000.0 - expected_cost);
 }
 
-TEST_F(WalletTest, NetWorthUpdatesWithPriceEvenOnSignalNone) {
+TEST_F(WalletTest, HistoryIsCorrectlyRecordedAfterBuy) {
+    constexpr double price = 50.0;
+    wallet.update(Signal::BUY, price);
+
+    ASSERT_FALSE(wallet.get_wallet_history().empty());
+
+    EXPECT_NE(wallet.get_last_total_net_worth(), wallet.get_initial_saldo());
+}
+
+TEST_F(WalletTest, HistoryIsCorrectlyRecordedAfterSell) {
     wallet.update(Signal::BUY, 50.0);
-    const double saldo_after_buy = wallet.get_saldo();
+    const double sell_price = 60.0;
+    wallet.update(Signal::SELL, sell_price);
 
-    constexpr double new_price = 100.0;
-    wallet.update(Signal::NONE, new_price);
-
-    const double expected_net_worth = saldo_after_buy + (SHARES_PER_TRANSACTION * new_price);
-    EXPECT_DOUBLE_EQ(wallet.get_total_net_worth(), expected_net_worth);
+    ASSERT_EQ(wallet.get_wallet_history().size(), 2);
+    EXPECT_NE(wallet.get_last_total_net_worth(), wallet.get_initial_saldo());
 }

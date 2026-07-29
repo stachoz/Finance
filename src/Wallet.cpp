@@ -4,17 +4,23 @@ bool Wallet::update(Signal signal, double price) {
     bool was_transaction_completed = true;
 
     switch (signal) {
-        case Signal::BUY:
+        using enum Signal;
+        case BUY:
             was_transaction_completed = buy(price);
             break;
-        case Signal::SELL:
+        case SELL:
             was_transaction_completed = sell(price);
             break;
-        case Signal::NONE:
+        case NONE:
             break;
     }
 
-    wallet_history.emplace_back(price, get_total_net_worth());
+    if (signal != Signal::NONE && was_transaction_completed) {
+        std::cout << "some transaction was made\n";
+    }
+
+    wallet_history.emplace_back(price, saldo + calculate_shares_value(price));
+    std::cout << wallet_history.back().first << " " << wallet_history.back().second << "\n";
     return was_transaction_completed;
 }
 
@@ -24,7 +30,7 @@ std::string Wallet::get_string() const {
     ss << "saldo: " << saldo << std::endl
         << "shares_per_transaction: " << shares_per_transaction << std::endl
         << "owned_shares: " << owned_shares << std::endl
-        << "net_worth: " << get_total_net_worth() << std::endl;
+        << "net_worth: " << get_last_total_net_worth() << std::endl;
 
     return ss.str();
 }
@@ -61,29 +67,20 @@ bool Wallet::sell(double price) {
     return true;
 }
 
-double Wallet::calculate_shares_value() const {
-    if (wallet_history.empty()) {
-        return 0.0;
-    }
-    return owned_shares * wallet_history.back().first;
+double Wallet::calculate_shares_value(double current_price) const {
+    return owned_shares * current_price;
 }
 
 double Wallet::calculate_commission(double shares_amount) const {
     return std::max(shares_amount * commission_per_share, 1.0);
 }
 
-double Wallet::get_total_net_worth() const {
-    return saldo + calculate_shares_value();
-}
 double Wallet::get_saldo() const {
     return saldo;
 }
 
 double Wallet::get_initial_saldo() const {
-    if (wallet_history.empty()) {
-        return 0;
-    }
-    return wallet_history.begin()->second;
+    return initial_saldo;
 }
 
 double Wallet::get_owned_shares() const {
@@ -96,6 +93,14 @@ double Wallet::get_spread() const {
 
 double Wallet::get_commission_per_share() const {
     return commission_per_share;
+}
+
+double Wallet::get_last_total_net_worth() const {
+    if (wallet_history.empty()) {
+        return 0;
+    }
+
+    return wallet_history.back().second;
 }
 
 void Wallet::set_spread(double value) {
