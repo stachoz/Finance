@@ -1,8 +1,6 @@
 #pragma once
 
-#include "strategy/MAStrategy.h"
 #include "TimeSeries.h"
-#include "strategy/StrategyRecorder.h"
 #include "Wallet.h"
 
 class Engine {

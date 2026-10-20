@@ -15,12 +15,7 @@ bool Wallet::update(Signal signal, double price) {
             break;
     }
 
-    if (signal != Signal::NONE && was_transaction_completed) {
-        std::cout << "some transaction was made\n";
-    }
-
     wallet_history.emplace_back(price, saldo + calculate_shares_value(price));
-    std::cout << wallet_history.back().first << " " << wallet_history.back().second << "\n";
     return was_transaction_completed;
 }
 

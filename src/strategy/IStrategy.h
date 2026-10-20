@@ -26,6 +26,7 @@ inline std::ostream& operator<<(std::ostream& stream, Signal signal) {
     return stream;
 }
 
+// FIXME struct contains moving average implementation details.
 struct StrategyOutput {
     Signal signal;
     double fast_ma;

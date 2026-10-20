@@ -11,6 +11,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(tests
         StatisticsTests.cpp
         MAStrategyTest.cpp
+        RsiStrategyTest.cpp
         WalletTest.cpp
 )
 

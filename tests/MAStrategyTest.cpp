@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "TimeSeries.h"
-#include "strategy/MAStrategy.h"
+#include "strategy/ma/MAStrategy.h"
 
 
 class MAStrategyTest : public ::testing::Test {

@@ -5,6 +5,7 @@
 #include "Wallet.h"
 #include "strategy/ma/MAStrategy.h"
 #include "strategy/StrategyRecorder.h"
+#include "strategy/rsi/RsiStrategy.h"
 
 int main() {
     const TimeSeries time_series {utils::csv::read(fs::path(PROJECT_ROOT_DIR) / "aapl_us_d.csv", true)};
@@ -13,7 +14,7 @@ int main() {
     constexpr double initial_saldo = 10'000;
     constexpr double shares_per_transaction = 30;
 
-    auto strategy_recorder = std::make_unique<StrategyRecorder>(std::make_unique<MAStrategy>(21, 55));
+    auto strategy_recorder = std::make_unique<StrategyRecorder>(std::make_unique<RsiStrategy>(14));
     auto wallet = std::make_unique<Wallet>(initial_saldo, shares_per_transaction);
 
     const auto* recorder_view = strategy_recorder.get();
