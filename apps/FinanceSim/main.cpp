@@ -3,7 +3,7 @@
 #include "File.hpp"
 #include "TimeSeries.h"
 #include "Wallet.h"
-#include "strategy/MAStrategy.h"
+#include "strategy/ma/MAStrategy.h"
 #include "strategy/StrategyRecorder.h"
 
 int main() {

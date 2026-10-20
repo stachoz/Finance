@@ -2,8 +2,8 @@
 
 #include <deque>
 
-#include "IStrategy.h"
 #include "TimeSeries.h"
+#include "strategy/IStrategy.h"
 
 class MAStrategy : public IStrategy{
 public:
