@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <functional>
+#include <memory>
 
 #include "TimeSeries.h"
 
@@ -72,11 +73,15 @@ namespace utils::csv {
         return result;
     }
 
+    template <typename T>
+    struct is_unique_ptr : std::false_type {};
+
+    template <typename T>
+    struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
+
     template <typename T, typename RowWriterCallable>
-    requires std::invocable<RowWriterCallable, std::ostream&, const T&>
     void save_to_file(const std::vector<T>& data_to_save, const std::filesystem::path& output_path,
-            RowWriterCallable row_writer,
-            const std::vector<std::string>& header = {}) {
+            RowWriterCallable row_writer, const std::vector<std::string>& header = {}) {
         std::ofstream file(output_path);
         if (!header.empty()) {
             for (size_t i = 0; i < header.size() - 1; ++i) {
@@ -85,8 +90,12 @@ namespace utils::csv {
             file << header[header.size() - 1] << "\n";
         }
 
-        for (const auto& d : data_to_save) {
-            row_writer(file, d);
+        for (const auto& value : data_to_save) {
+            if constexpr (is_unique_ptr<T>::value) {
+                std::invoke(row_writer, *value, file);
+            } else {
+                std::invoke(row_writer, value, file);
+            }
         }
     }
 };

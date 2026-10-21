@@ -14,10 +14,10 @@ protected:
 };
 
 TEST_F(MAStrategyTest, ReturnsNoneDuringWarmup) {
-    EXPECT_EQ(strategy.proceed(price(10.0)).signal, Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(11.0)).signal, Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(12.0)).signal, Signal::NONE);
-    EXPECT_EQ(strategy.proceed(price(13.0)).signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(10.0))->signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(11.0))->signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(12.0))->signal, Signal::NONE);
+    EXPECT_EQ(strategy.proceed(price(13.0))->signal, Signal::NONE);
 }
 
 TEST_F(MAStrategyTest, DetectsGoldenCross) {
@@ -27,13 +27,14 @@ TEST_F(MAStrategyTest, DetectsGoldenCross) {
     strategy.proceed(price(70));
 
     // Fast (2-period) will react much quicker than Slow (4-period)
-    const auto strategy_output = strategy.proceed(price(150));
+    auto strategy_output = strategy.proceed(price(150));
 
-    EXPECT_EQ(strategy_output.signal, Signal::BUY);
+    EXPECT_EQ(strategy_output->signal, Signal::BUY);
 
-    // t should be in range <0, 1>
-    EXPECT_GE(strategy_output.t, 0.0);
-    EXPECT_LE(strategy_output.t, 1.0);
+    const auto* ma_output = dynamic_cast<const MAStrategyOutput*>(strategy_output.get());
+    ASSERT_NE(ma_output, nullptr);
+    EXPECT_GE(ma_output->t, 0.0);
+    EXPECT_LE(ma_output->t, 1.0);
 }
 
 TEST_F(MAStrategyTest, DetectsDeathCross) {
@@ -43,12 +44,15 @@ TEST_F(MAStrategyTest, DetectsDeathCross) {
     strategy.proceed(price(40));
 
     // Price crashes
-    const auto strategy_output = strategy.proceed(price(5));
+    auto strategy_output = strategy.proceed(price(5));
 
-    EXPECT_EQ(strategy_output.signal, Signal::SELL);
-    // T must be valid
-    EXPECT_GE(strategy_output.t, 0.0);
-    EXPECT_LE(strategy_output.t, 1.0);
+    ASSERT_NE(strategy_output, nullptr);
+    EXPECT_EQ(strategy_output->signal, Signal::SELL);
+
+    const auto* ma_output = dynamic_cast<const MAStrategyOutput*>(strategy_output.get());
+    ASSERT_NE(ma_output, nullptr);
+    EXPECT_GE(ma_output->t, 0.0);
+    EXPECT_LE(ma_output->t, 1.0);
 }
 
 TEST(MAStrategyConstructor, ThrowsOnInvalidIntervals) {

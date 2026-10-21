@@ -2,7 +2,7 @@
 #include "File.hpp"
 #include "TimeSeries.h"
 #include "Wallet.h"
-#include "strategy/MAStrategy.h"
+#include "strategy/ma/MAStrategy.h"
 
 int main() {
     const TimeSeries time_series {utils::csv::read(std::filesystem::path(PROJECT_ROOT_DIR) / "aapl_us_d.csv", true)};

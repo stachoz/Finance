@@ -12,7 +12,7 @@ public:
 
     ~MAStrategy() override = default;
 
-    StrategyOutput proceed(const DOHLCV& dohlcv) override;
+    std::unique_ptr<StrategyOutput> proceed(const DOHLCV& dohlcv) override;
 
 private:
 

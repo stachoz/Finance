@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include <string>
+#include <vector>
 #include "TimeSeries.h"
 
 enum class Signal : uint8_t {
@@ -26,26 +27,59 @@ inline std::ostream& operator<<(std::ostream& stream, Signal signal) {
     return stream;
 }
 
-// FIXME struct contains moving average implementation details.
-struct StrategyOutput {
+class StrategyOutput {
+public:
     Signal signal;
-    double fast_ma;
-    double slow_ma;
     double price;                       /// Signal price
-    double t;                           /// Fractional day offset used to interpolate the precise timing of the crossover
-    year_month_day date;                /// Date of closing price, based on which signal was caluclated
+    StrategyOutput(Signal signal, double price) : signal(signal), price(price) {}
+    virtual ~StrategyOutput() = default;
+
+    virtual void write_strategy_as_row(std::ostream& os) const {
+        os << signal << "," << price << "\n";
+    }
+
+    virtual const std::vector<std::string>& csv_header() const {
+        static const std::vector<std::string> header{"signal", "price"};
+        return header;
+    }
 };
 
-inline void write_strategy_as_row(std::ostream& os, const StrategyOutput &output) {
-    os << output.signal << ","
-        << output.fast_ma << ","
-        << output.slow_ma << ","
-        << output.price << ","
-        << output.t << "\n";
-}
+class MAStrategyOutput : public StrategyOutput {
+public:
+    double fast_ma;
+    double slow_ma;
+    double t;
+
+    MAStrategyOutput(Signal signal, double price, double fast_ma, double slow_ma, double t) :
+        StrategyOutput{signal, price}, fast_ma{fast_ma}, slow_ma{slow_ma}, t{t} {}
+
+    void write_strategy_as_row(std::ostream& os) const override {
+        os << signal << "," << price << "," << fast_ma << "," << slow_ma << "," << t << "\n";
+    }
+
+    const std::vector<std::string>& csv_header() const override {
+        static const std::vector<std::string> header{"signal", "price", "fast_ma", "slow_ma", "t"};
+        return header;
+    }
+};
+
+struct RsiStrategyOutput : StrategyOutput {
+    double rsi_value;
+    RsiStrategyOutput(Signal signal, double price, double rsi_value)
+        : StrategyOutput(signal, price), rsi_value(rsi_value) {}
+
+    void write_strategy_as_row(std::ostream& os) const override {
+        os << signal << "," << price << "," << rsi_value << "\n";
+    }
+
+    const std::vector<std::string>& csv_header() const override {
+        static const std::vector<std::string> header{"signal", "price", "rsi_value"};
+        return header;
+    }
+};
 
 class IStrategy {
 public:
     virtual ~IStrategy() = default;
-    virtual StrategyOutput proceed(const DOHLCV& data) = 0;
+    virtual std::unique_ptr<StrategyOutput> proceed(const DOHLCV& data) = 0;
 };

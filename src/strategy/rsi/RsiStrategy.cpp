@@ -3,10 +3,10 @@
 #include <list>
 #include <cmath>
 
-StrategyOutput RsiStrategy::proceed(const DOHLCV &data) {
+std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
     if (prices_history.empty()) {
         prices_history.emplace_front(data.close, 0);
-        return StrategyOutput{Signal::NONE};
+        return std::make_unique<RsiStrategyOutput>(Signal::NONE, data.close, 0.0);
     }
 
     double diff = data.close - prices_history.front().price;
@@ -29,7 +29,7 @@ StrategyOutput RsiStrategy::proceed(const DOHLCV &data) {
         prices_history.pop_back();
     }
     else {
-        return StrategyOutput{Signal::NONE};
+        return std::make_unique<RsiStrategyOutput>(Signal::NONE, data.close, 0.0);
     }
 
     const double avg_gain = gains_sum / tracking_period;
@@ -59,5 +59,5 @@ StrategyOutput RsiStrategy::proceed(const DOHLCV &data) {
         sig = Signal::BUY;
     }
 
-    return StrategyOutput {sig};
+    return std::make_unique<RsiStrategyOutput>(sig, data.close, rsi);
 }

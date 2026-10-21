@@ -15,7 +15,7 @@ public:
         }
     };
 
-    StrategyOutput proceed(const DOHLCV &data) override;
+    std::unique_ptr<StrategyOutput> proceed(const DOHLCV &data) override;
 
 private:
     struct PriceEntry{

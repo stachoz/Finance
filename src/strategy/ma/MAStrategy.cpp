@@ -8,7 +8,7 @@ MAStrategy::MAStrategy(size_t fast_period, size_t slow_period):
     }
 }
 
-StrategyOutput MAStrategy::proceed(const DOHLCV& dohlcv) {
+std::unique_ptr<StrategyOutput> MAStrategy::proceed(const DOHLCV& dohlcv) {
     const double closing_price = dohlcv.close;
 
     const double prev_fast = fast_window.empty() ? 0 : fast_sum / fast_window.size();
@@ -19,7 +19,7 @@ StrategyOutput MAStrategy::proceed(const DOHLCV& dohlcv) {
 
     // loading period
     if (fast_window.size() < fast_period || slow_window.size() < slow_period) {
-        return {Signal::NONE, 0, 0, 0};
+        return std::make_unique<MAStrategyOutput>(Signal::NONE, 0, 0, 0, 0);
     }
 
     const double curr_fast = fast_sum / fast_window.size();
@@ -32,13 +32,13 @@ StrategyOutput MAStrategy::proceed(const DOHLCV& dohlcv) {
         cross_price_t = calculate_intersection_price(prev_fast, curr_fast, prev_slow, curr_slow);
     }
 
-    return {
+    return std::make_unique<MAStrategyOutput>(
         signal,
+        cross_price_t.first,
         curr_fast,
         curr_slow,
-        cross_price_t.first,
-        cross_price_t.second,
-    };
+        cross_price_t.second
+    );
 }
 
 Signal MAStrategy::get_signal(double prev_fast, double curr_fast, double prev_slow, double curr_slow) {

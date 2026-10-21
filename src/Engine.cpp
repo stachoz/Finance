@@ -9,7 +9,7 @@ void Engine::run() const {
         // Transaction is made with open price to simulate delay
         wallet->update(awaiting_task, daily_data.open);
         const auto strategy_output = strategy->proceed(daily_data);
-        awaiting_task = strategy_output.signal;
+        awaiting_task = strategy_output->signal;
     }
 }
 
