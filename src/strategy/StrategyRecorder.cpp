@@ -18,3 +18,7 @@ std::unique_ptr<StrategyOutput> StrategyRecorder::proceed(const DOHLCV &data) {
 const std::vector<std::unique_ptr<StrategyOutput>> & StrategyRecorder::get_data_history() const {
     return data_history;
 }
+
+std::string_view StrategyRecorder::name() const {
+    return decorated_strategy->name();
+}

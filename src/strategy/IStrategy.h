@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include "TimeSeries.h"
 
@@ -82,4 +83,5 @@ class IStrategy {
 public:
     virtual ~IStrategy() = default;
     virtual std::unique_ptr<StrategyOutput> proceed(const DOHLCV& data) = 0;
+    virtual std::string_view name() const = 0;
 };

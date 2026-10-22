@@ -7,6 +7,8 @@
 #include "strategy/StrategyRecorder.h"
 #include "strategy/rsi/RsiStrategy.h"
 
+#include <string>
+
 int main() {
     const TimeSeries time_series {utils::csv::read(fs::path(PROJECT_ROOT_DIR) / "aapl_us_d.csv", true)};
     auto sliced = time_series.slice({2020y, January, 1d});
@@ -30,6 +32,7 @@ int main() {
 
     std::cout << wallet_view->get_string();
 
-    CSVExporter::export_strategy(*recorder_view, fs::path(TEST_DATA_DIR) / "strategy-output.csv");
+    const auto strategy_output_path = fs::path(TEST_DATA_DIR) / (std::string(recorder_view->name()) + "-output.csv");
+    CSVExporter::export_strategy(*recorder_view, strategy_output_path);
     CSVExporter::export_wallet(*wallet_view, fs::path(TEST_DATA_DIR) / "wallet-output.csv");
 }

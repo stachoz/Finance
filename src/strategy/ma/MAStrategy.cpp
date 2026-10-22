@@ -41,6 +41,10 @@ std::unique_ptr<StrategyOutput> MAStrategy::proceed(const DOHLCV& dohlcv) {
     );
 }
 
+std::string_view MAStrategy::name() const {
+    return "ma";
+}
+
 Signal MAStrategy::get_signal(double prev_fast, double curr_fast, double prev_slow, double curr_slow) {
     if (prev_fast <= prev_slow && curr_fast > curr_slow) {
         return Signal::BUY;

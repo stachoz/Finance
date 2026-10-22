@@ -14,6 +14,8 @@ public:
 
     std::unique_ptr<StrategyOutput> proceed(const DOHLCV& dohlcv) override;
 
+    std::string_view name() const override;
+
 private:
 
     /**
@@ -56,6 +58,7 @@ private:
     static std::pair<double, double> calculate_intersection_price(double prev_fast, double curr_fast, double prev_slow,
                                                                   double curr_slow);
 
+private:
     size_t fast_period;
     size_t slow_period;
     std::deque<double> fast_window {};

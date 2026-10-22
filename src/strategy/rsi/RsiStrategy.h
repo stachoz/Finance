@@ -17,6 +17,8 @@ public:
 
     std::unique_ptr<StrategyOutput> proceed(const DOHLCV &data) override;
 
+    std::string_view name() const override;
+
 private:
     struct PriceEntry{
         double price;

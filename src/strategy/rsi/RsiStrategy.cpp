@@ -61,3 +61,7 @@ std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
 
     return std::make_unique<RsiStrategyOutput>(sig, data.close, rsi);
 }
+
+std::string_view RsiStrategy::name() const {
+    return "rsi";
+}
