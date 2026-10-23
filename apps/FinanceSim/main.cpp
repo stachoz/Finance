@@ -34,5 +34,6 @@ int main() {
 
     const auto strategy_output_path = fs::path(TEST_DATA_DIR) / (std::string(recorder_view->name()) + "-output.csv");
     CSVExporter::export_strategy(*recorder_view, strategy_output_path);
-    CSVExporter::export_wallet(*wallet_view, fs::path(TEST_DATA_DIR) / "wallet-output.csv");
+    const auto wallet_output_path = fs::path(TEST_DATA_DIR) / (std::string(recorder_view->name()) + "-wallet.csv");
+    CSVExporter::export_wallet(*wallet_view, wallet_output_path);
 }

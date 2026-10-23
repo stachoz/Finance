@@ -9,7 +9,7 @@
 class RsiStrategy : public IStrategy{
 public:
     ~RsiStrategy() override = default;
-    explicit  RsiStrategy(uint8_t tracking_period_value) : tracking_period(tracking_period_value) {
+    explicit RsiStrategy(uint8_t tracking_period_value) : tracking_period(tracking_period_value) {
         if (tracking_period == 0) {
             throw std::invalid_argument("expected value > 0");
         }
@@ -29,5 +29,7 @@ private:
     std::list<PriceEntry> prices_history;
     double gains_sum = 0.0;
     double losses_sum = 0.0;
-    uint8_t tracking_period = 14;
+    uint8_t tracking_period;
+    bool has_sold_already = false;
+    bool has_bought_already = false;
 };
