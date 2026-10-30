@@ -2,6 +2,7 @@
 
 #include <list>
 #include <cmath>
+#include <regex.h>
 
 std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
     if (prices_history.empty()) {
@@ -50,18 +51,41 @@ std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
         rsi = 100 - (100 / (1 + rs));
     }
 
-    auto sig = Signal::NONE;
-
-    if (rsi >= upper) {
-        sig = Signal::SELL;
-    }
-    else if (rsi <= lower) {
-        sig = Signal::BUY;
-    }
-
-    return std::make_unique<RsiStrategyOutput>(sig, data.close, rsi);
+    return std::make_unique<RsiStrategyOutput>(getSignal(rsi), data.close, rsi);
 }
 
 std::string_view RsiStrategy::name() const {
     return "rsi";
+}
+
+Signal RsiStrategy::getSignal(double rsi) {
+    switch (strategy_variant) {
+        case StrategyVariant::BuyOnceInSection:
+            if (rsi >= upper && !has_sold_already) {
+                has_sold_already = true;
+                return Signal::SELL;
+            }
+            if (rsi <= lower && !has_bought_already) {
+                has_bought_already = true;
+                return Signal::BUY;
+            }
+            if (rsi > lower && rsi < upper) { // neutral range resets transaction flags
+                has_bought_already = false;
+                has_sold_already = false;
+                return Signal::NONE;
+            }
+            break;
+        case StrategyVariant::BugEachTimeInSection:
+            if (rsi >= upper) {
+                return Signal::SELL;
+            }
+            if (rsi <= lower) {
+                return Signal::BUY;
+            }
+            return Signal::NONE;
+        case StrategyVariant::ScaledPosition: // TODO
+            return Signal::NONE;
+    }
+
+    return Signal::NONE;
 }
