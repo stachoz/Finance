@@ -32,7 +32,9 @@ class StrategyOutput {
 public:
     Signal signal;
     double price;                       /// Signal price
-    StrategyOutput(Signal signal, double price) : signal(signal), price(price) {}
+    double transaction_size;
+    StrategyOutput(Signal signal, double price, double transaction_size) : signal(signal), price(price), transaction_size(transaction_size) {}
+
     virtual ~StrategyOutput() = default;
 
     virtual void write_strategy_as_row(std::ostream& os) const {
@@ -51,8 +53,8 @@ public:
     double slow_ma;
     double t;
 
-    MAStrategyOutput(Signal signal, double price, double fast_ma, double slow_ma, double t) :
-        StrategyOutput{signal, price}, fast_ma{fast_ma}, slow_ma{slow_ma}, t{t} {}
+    MAStrategyOutput(const StrategyOutput& base, double fast_ma, double slow_ma, double t) :
+        StrategyOutput{base}, fast_ma{fast_ma}, slow_ma{slow_ma}, t{t} {}
 
     void write_strategy_as_row(std::ostream& os) const override {
         os << signal << "," << price << "," << fast_ma << "," << slow_ma << "," << t << "\n";
@@ -66,8 +68,8 @@ public:
 
 struct RsiStrategyOutput : StrategyOutput {
     double rsi_value;
-    RsiStrategyOutput(Signal signal, double price, double rsi_value)
-        : StrategyOutput(signal, price), rsi_value(rsi_value) {}
+    RsiStrategyOutput(const StrategyOutput& base, double rsi_value)
+        : StrategyOutput(base), rsi_value(rsi_value) {}
 
     void write_strategy_as_row(std::ostream& os) const override {
         os << signal << "," << price << "," << rsi_value << "\n";

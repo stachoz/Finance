@@ -8,7 +8,7 @@
 class MAStrategy : public IStrategy{
 public:
 
-    MAStrategy(size_t fast_period, size_t slow_period);
+    MAStrategy(double transaction_size, size_t fast_period, size_t slow_period);
 
     ~MAStrategy() override = default;
 
@@ -58,7 +58,7 @@ private:
     static std::pair<double, double> calculate_intersection_price(double prev_fast, double curr_fast, double prev_slow,
                                                                   double curr_slow);
 
-private:
+    double transaction_size;
     size_t fast_period;
     size_t slow_period;
     std::deque<double> fast_window {};

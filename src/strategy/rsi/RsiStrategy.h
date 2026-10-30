@@ -1,8 +1,10 @@
 #pragma once
 
-
 #include <list>
+#include <optional>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 
 #include "strategy/IStrategy.h"
 
@@ -10,12 +12,12 @@ class RsiStrategy : public IStrategy{
 public:
     enum class StrategyVariant : uint8_t {
         BuyOnceInSection,
-        BugEachTimeInSection,
+        BuyEachTimeInSection,
         ScaledPosition
     };
 
     ~RsiStrategy() override = default;
-    explicit RsiStrategy(uint8_t tracking_period_value, StrategyVariant variant = StrategyVariant::BuyOnceInSection) : tracking_period(tracking_period_value),
+    RsiStrategy(double transaction_size, uint8_t tracking_period_value, StrategyVariant variant) : transaction_size(transaction_size) ,tracking_period(tracking_period_value),
     strategy_variant(variant){
         if (tracking_period == 0) {
             throw std::invalid_argument("expected value > 0");
@@ -27,12 +29,24 @@ public:
     std::string_view name() const override;
 
 private:
-    Signal getSignal(double rsi);
+    std::pair<Signal, double> getSignalAndTransactionSize(double rsi);
 
     struct PriceEntry{
         double price;
         double price_change; // value > 0 is gain, value < 0 loss
     };
+
+    std::vector<std::pair<double, double>> sell_rsi_threshold_scales= {
+        {95, 0.50},
+        {90, 0.25},
+        {80, 0.25},
+    };
+    std::vector<std::pair<double, double>> buy_rsi_threshold_scales = {
+        {20, 0.50},
+        {25, 0.25},
+        {30, 0.25}
+    };
+    double transaction_size;
     uint8_t tracking_period;
     StrategyVariant strategy_variant;
     const double lower = 30;

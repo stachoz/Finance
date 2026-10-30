@@ -21,8 +21,8 @@ int main() {
             }
             const auto engine = std::make_unique<Engine>(
                 sliced,
-                std::make_unique<MAStrategy>(fast_value, slow_value),
-                std::make_unique<Wallet>(10'000, 30)
+                std::make_unique<MAStrategy>(30, fast_value, slow_value),
+                std::make_unique<Wallet>(10'000)
             );
 
             engine->run();

@@ -10,7 +10,7 @@ protected:
         return {{}, 0, 0, 0, p, 0};
     }
 
-    MAStrategy strategy {2, 4};
+    MAStrategy strategy {30, 2, 4};
 };
 
 TEST_F(MAStrategyTest, ReturnsNoneDuringWarmup) {
@@ -55,6 +55,6 @@ TEST_F(MAStrategyTest, DetectsDeathCross) {
     EXPECT_LE(ma_output->t, 1.0);
 }
 
-TEST(MAStrategyConstructor, ThrowsOnInvalidIntervals) {
-    EXPECT_THROW(MAStrategy(50, 20), std::runtime_error);
+TEST_F(MAStrategyTest, ThrowsOnInvalidIntervals) {
+    EXPECT_THROW(MAStrategy(30, 50, 20), std::invalid_argument);
 }

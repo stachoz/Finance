@@ -7,12 +7,12 @@ std::unique_ptr<StrategyOutput> StrategyRecorder::proceed(const DOHLCV &data) {
     data_history.push_back(std::move(strategy_output));
 
     if (const auto* ma = dynamic_cast<const MAStrategyOutput*>(data_history.back().get())) {
-        return std::make_unique<MAStrategyOutput>(ma->signal, ma->price, ma->fast_ma, ma->slow_ma, ma->t);
+        return std::make_unique<MAStrategyOutput>(*ma, ma->fast_ma, ma->slow_ma, ma->t);
     }
     if (const auto* rsi = dynamic_cast<const RsiStrategyOutput*>(data_history.back().get())) {
-        return std::make_unique<RsiStrategyOutput>(rsi->signal, rsi->price, rsi->rsi_value);
+        return std::make_unique<RsiStrategyOutput>(*rsi, rsi->rsi_value);
     }
-    return std::make_unique<StrategyOutput>(result, data_history.back()->price);
+    return std::make_unique<StrategyOutput>(*data_history.back());
 }
 
 const std::vector<std::unique_ptr<StrategyOutput>> & StrategyRecorder::get_data_history() const {

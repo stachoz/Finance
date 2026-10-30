@@ -16,8 +16,8 @@ int main() {
     constexpr double initial_saldo = 10'000;
     constexpr double shares_per_transaction = 30;
 
-    auto strategy_recorder = std::make_unique<StrategyRecorder>(std::make_unique<RsiStrategy>(14));
-    auto wallet = std::make_unique<Wallet>(initial_saldo, shares_per_transaction);
+    auto strategy_recorder = std::make_unique<StrategyRecorder>(std::make_unique<RsiStrategy>(shares_per_transaction,14, RsiStrategy::StrategyVariant::ScaledPosition));
+    auto wallet = std::make_unique<Wallet>(initial_saldo);
 
     const auto* recorder_view = strategy_recorder.get();
     const auto* wallet_view = wallet.get();

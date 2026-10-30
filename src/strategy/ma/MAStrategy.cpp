@@ -1,10 +1,14 @@
 #include "MAStrategy.h"
 
-MAStrategy::MAStrategy(size_t fast_period, size_t slow_period):
+MAStrategy::MAStrategy(double transaction_size, size_t fast_period, size_t slow_period):
+    transaction_size(transaction_size),
     fast_period(fast_period),
     slow_period(slow_period) {
+    if (transaction_size <= 0) {
+        throw std::invalid_argument("Transaction size must be grater than 0");
+    }
     if (fast_period > slow_period) {
-        throw std::runtime_error("MAStrategy: first ma must by shorter then second");
+        throw std::invalid_argument("MAStrategy: first ma must by shorter then second");
     }
 }
 
@@ -19,7 +23,7 @@ std::unique_ptr<StrategyOutput> MAStrategy::proceed(const DOHLCV& dohlcv) {
 
     // loading period
     if (fast_window.size() < fast_period || slow_window.size() < slow_period) {
-        return std::make_unique<MAStrategyOutput>(Signal::NONE, 0, 0, 0, 0);
+        return std::make_unique<MAStrategyOutput>(StrategyOutput{Signal::NONE, 0, 0}, 0, 0, 0);
     }
 
     const double curr_fast = fast_sum / fast_window.size();
@@ -33,8 +37,7 @@ std::unique_ptr<StrategyOutput> MAStrategy::proceed(const DOHLCV& dohlcv) {
     }
 
     return std::make_unique<MAStrategyOutput>(
-        signal,
-        cross_price_t.first,
+        StrategyOutput{signal, cross_price_t.first, transaction_size},
         curr_fast,
         curr_slow,
         cross_price_t.second

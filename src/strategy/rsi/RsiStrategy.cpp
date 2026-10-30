@@ -2,12 +2,11 @@
 
 #include <list>
 #include <cmath>
-#include <regex.h>
 
 std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
     if (prices_history.empty()) {
         prices_history.emplace_front(data.close, 0);
-        return std::make_unique<RsiStrategyOutput>(Signal::NONE, data.close, 0.0);
+        return std::make_unique<RsiStrategyOutput>(StrategyOutput{Signal::NONE, data.close, 0}, 0.0);
     }
 
     double diff = data.close - prices_history.front().price;
@@ -30,7 +29,7 @@ std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
         prices_history.pop_back();
     }
     else {
-        return std::make_unique<RsiStrategyOutput>(Signal::NONE, data.close, 0.0);
+        return std::make_unique<RsiStrategyOutput>(StrategyOutput{Signal::NONE, data.close, 0}, 0.0);
     }
 
     const double avg_gain = gains_sum / tracking_period;
@@ -51,41 +50,79 @@ std::unique_ptr<StrategyOutput> RsiStrategy::proceed(const DOHLCV &data) {
         rsi = 100 - (100 / (1 + rs));
     }
 
-    return std::make_unique<RsiStrategyOutput>(getSignal(rsi), data.close, rsi);
+    auto [signal, size] = getSignalAndTransactionSize(rsi);
+    return std::make_unique<RsiStrategyOutput>(StrategyOutput{signal, data.close, size}, rsi);
 }
 
 std::string_view RsiStrategy::name() const {
     return "rsi";
 }
 
-Signal RsiStrategy::getSignal(double rsi) {
+std::pair<Signal, double> RsiStrategy::getSignalAndTransactionSize(double rsi) {
+    const bool overbought = rsi >= upper;
+    const bool oversold = rsi <= lower;
+
     switch (strategy_variant) {
         case StrategyVariant::BuyOnceInSection:
-            if (rsi >= upper && !has_sold_already) {
+            if (overbought) {
+                if (has_sold_already) {
+                    return {Signal::NONE, 0};
+                }
                 has_sold_already = true;
-                return Signal::SELL;
+                return {Signal::SELL, transaction_size};
             }
-            if (rsi <= lower && !has_bought_already) {
+            if (oversold) {
+                if (has_bought_already) {
+                    return {Signal::NONE, 0};
+                }
                 has_bought_already = true;
-                return Signal::BUY;
+                return {Signal::BUY, transaction_size};
             }
-            if (rsi > lower && rsi < upper) { // neutral range resets transaction flags
-                has_bought_already = false;
-                has_sold_already = false;
-                return Signal::NONE;
+
+            has_bought_already = false;
+            has_sold_already = false;
+            return {Signal::NONE, 0};
+        case StrategyVariant::BuyEachTimeInSection:
+            if (overbought) {
+                return {Signal::SELL, transaction_size};
             }
-            break;
-        case StrategyVariant::BugEachTimeInSection:
-            if (rsi >= upper) {
-                return Signal::SELL;
+            if (oversold) {
+                return {Signal::BUY, transaction_size};
             }
-            if (rsi <= lower) {
-                return Signal::BUY;
+            return {Signal::NONE, 0};
+        case StrategyVariant::ScaledPosition:
+            const auto overbought_pos_scale =  std::ranges::find_if(sell_rsi_threshold_scales,
+                [rsi](const std::pair<double, double>& threshold_scale) {
+                return rsi >= threshold_scale.first;
+            });
+
+            const auto oversold_pos_scale =  std::ranges::find_if(buy_rsi_threshold_scales,
+                [rsi](const std::pair<double, double>& threshold_scale) {
+                return rsi <= threshold_scale.first;
+            });
+
+            if (overbought_pos_scale != std::end(sell_rsi_threshold_scales)) {
+                if (has_sold_already) {
+                    return {Signal::NONE, 0};
+                }
+
+                has_sold_already = true;
+                return {Signal::SELL, transaction_size * overbought_pos_scale->second};
             }
-            return Signal::NONE;
-        case StrategyVariant::ScaledPosition: // TODO
-            return Signal::NONE;
+
+            if (oversold_pos_scale != std::end(buy_rsi_threshold_scales)) {
+                if (has_bought_already) {
+                    return {Signal::NONE, 0};
+                }
+
+                has_bought_already = true;
+                return {Signal::BUY, transaction_size * oversold_pos_scale->second};
+            }
+
+            has_bought_already = false;
+            has_sold_already = false;
+            return {Signal::NONE, 0};
     }
 
-    return Signal::NONE;
+    return {Signal::NONE, 0};
 }

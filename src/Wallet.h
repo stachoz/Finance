@@ -4,10 +4,10 @@
 
 class Wallet {
 public:
-    Wallet(double saldo_value, double shares_per_transaction_value)
-        : saldo(saldo_value), initial_saldo(saldo_value), shares_per_transaction(shares_per_transaction_value) { }
+    Wallet(double saldo_value)
+        : initial_saldo(saldo_value), saldo(saldo_value) { }
 
-    bool update(Signal signal, double price);
+    bool update(Signal signal, double price, double transaction_size);
 
     [[nodiscard]] std::string get_string() const;
 
@@ -26,9 +26,9 @@ public:
 
     const std::vector<std::pair<double, double>>& get_wallet_history() const;
 private:
-    bool buy(double price);
+    bool buy(double price, double transaction_size);
 
-    bool sell(double price);
+    bool sell(double price, double transaction_size);
 
     double calculate_shares_value(double current_price) const;
 
@@ -45,7 +45,6 @@ private:
     double commission_per_share {0.0035};
     double initial_saldo {0};
     double saldo {0};
-    double shares_per_transaction {0};
     double owned_shares {0};
 
     std::vector<std::pair<double, double>> wallet_history; // market price, net-worth

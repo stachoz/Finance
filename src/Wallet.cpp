@@ -1,15 +1,15 @@
 #include "Wallet.h"
 
-bool Wallet::update(Signal signal, double price) {
+bool Wallet::update(Signal signal, double price, double transaction_size) {
     bool was_transaction_completed = true;
 
     switch (signal) {
         using enum Signal;
         case BUY:
-            was_transaction_completed = buy(price);
+            was_transaction_completed = buy(price, transaction_size);
             break;
         case SELL:
-            was_transaction_completed = sell(price);
+            was_transaction_completed = sell(price, transaction_size);
             break;
         case NONE:
             break;
@@ -23,7 +23,6 @@ std::string Wallet::get_string() const {
     std::stringstream ss;
 
     ss << "saldo: " << saldo << std::endl
-        << "shares_per_transaction: " << shares_per_transaction << std::endl
         << "owned_shares: " << owned_shares << std::endl
         << "net_worth: " << get_last_total_net_worth() << std::endl;
 
@@ -31,29 +30,29 @@ std::string Wallet::get_string() const {
 }
 
 
-bool Wallet::buy(double price) {
+bool Wallet::buy(double price, double transaction_size) {
     // buying for higher price (ask)
     const double execution_price = price + (spread / 2.0);
-    const double total_cost = shares_per_transaction * execution_price + calculate_commission(shares_per_transaction);
+    const double total_cost = transaction_size * execution_price + calculate_commission(transaction_size);
 
     if (total_cost > saldo) {
         return false;
     }
 
     saldo -= total_cost;
-    owned_shares += shares_per_transaction;
+    owned_shares += transaction_size;
 
     return true;
 }
 
-bool Wallet::sell(double price) {
+bool Wallet::sell(double price, double transaction_size) {
     if (owned_shares == 0) {
         return false;
     }
 
     // selling for lower price (bid)
     const double execution_price = price - (spread / 2.0);
-    const double shares_to_sell = std::min(owned_shares, shares_per_transaction);
+    const double shares_to_sell = std::min(owned_shares, transaction_size);
     const double total_revenue = shares_to_sell * execution_price - calculate_commission(shares_to_sell);
 
     saldo += total_revenue;
